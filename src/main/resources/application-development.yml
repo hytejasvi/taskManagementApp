@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: mongodb+srv://hytejasvi:kftNgfGdLJTc15MX@cluster0.puhyu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      uri: ${MONGO_URI}
       database: taskmanager
       auto-index-creation : true
 
