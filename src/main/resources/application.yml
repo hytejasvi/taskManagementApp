@@ -1,0 +1,10 @@
+spring:
+  profiles:
+    active: development # changing the name here would switch the profile.
+
+#if there are any common configs in our profiles, then we can specify them in the default yml, like below.
+#As the db will be different based on our profiles, we define them in our respective yml's.
+server:
+  port: 8090
+  servlet:
+    context-path: /taskmanager #our application will have to start with this followed by API signature
