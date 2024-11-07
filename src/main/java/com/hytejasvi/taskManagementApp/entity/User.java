@@ -11,11 +11,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
+@Document(collection = "user")
 @NoArgsConstructor
 @Getter
 @Setter
 @AllArgsConstructor
-@Document(collection = "user")
 public class User {
 
     @Id
