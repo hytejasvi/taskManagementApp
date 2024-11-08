@@ -18,8 +18,10 @@ public class Task {
     @Id // this marks the variable as primary key
     private ObjectId id;
 
+    @NonNull
     private String title;
     private String description;
     private Boolean isCompleted;
     private Date deadline;
+    private String category;
 }
