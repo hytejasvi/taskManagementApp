@@ -1,9 +1,12 @@
 package com.hytejasvi.taskManagementApp.service;
 
+import com.hytejasvi.taskManagementApp.dto.UserDto;
 import com.hytejasvi.taskManagementApp.entity.User;
 import com.hytejasvi.taskManagementApp.repository.UserRepository;
+import com.hytejasvi.taskManagementApp.utils.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,12 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UserDetailsServiceImpl userDetailsService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -37,5 +46,24 @@ public class UserService {
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    public String userLogin(UserDto userDto) {
+        try {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(userDto.getUsername());
+            String jwtToken = jwtUtil.generateTokens(userDetails.getUsername());
+            log.info("get jwtToken successful");
+            return jwtToken;
+        } catch (Exception e) {
+            throw new IllegalArgumentException (e);
+        }
+    }
+
+    public User findUserByUserName(String userName) {
+        return userRepository.findByUserName(userName);
+    }
+
+    public void saveUser(User user) {
+        userRepository.save(user);
     }
 }

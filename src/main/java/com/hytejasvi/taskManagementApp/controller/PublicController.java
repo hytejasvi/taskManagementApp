@@ -24,19 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/")
 public class PublicController {
 
-
     @Autowired
     private UserService userService;
 
     @Autowired
-    private UserDetailsServiceImpl userDetailsService;
-
-    @Autowired
     private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
 
     @PostMapping("signup")
     public ResponseEntity<?> signup(@RequestBody User user) {
@@ -46,7 +38,8 @@ public class PublicController {
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("Signup failed: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return new ResponseEntity<>("An unexpected error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("An unexpected error occurred: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -55,16 +48,12 @@ public class PublicController {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userDto.getUsername(),
                     userDto.getPassword()));
-            log.info("authentication successful");
-            UserDetails userDetails = userDetailsService.loadUserByUsername(userDto.getUsername());
-            log.info("get userDetails successful");
-            String jwtToken = jwtUtil.generateTokens(userDetails.getUsername());
-            log.info("get jwtToken successful");
-            return new ResponseEntity<>(jwtToken, HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(userService.userLogin(userDto), HttpStatus.ACCEPTED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("Login failed: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            return new ResponseEntity<>("An unexpected error occurred: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("An unexpected error occurred: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
