@@ -31,9 +31,12 @@ public class SpringSecurity {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/signup","/login").permitAll()//permits all the API's defined in this
-                        //.requestMatchers("").authenticated() // need authentication for API's defined in this
-                        .requestMatchers("/admin/**").hasRole("admin") // role based authentication for API's mentioned here
+                        .requestMatchers("/signup","/login").permitAll()
+                        //permits all the API's defined above, without any authentication
+                        .requestMatchers("/task/**").authenticated() // need authentication for API's defined in this
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        // role based authentication for API's mentioned above, meaning, any user can access the
+                        //API's with /admin path if they have ADMIN as one of thier roles
                         .anyRequest().permitAll())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
