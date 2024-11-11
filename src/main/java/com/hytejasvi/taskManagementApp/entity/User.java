@@ -1,5 +1,6 @@
 package com.hytejasvi.taskManagementApp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,8 @@ public class User {
     private ObjectId userId;
 
     private String userName;
+
+    @JsonIgnore // this is added to restrict the field(password) from being serialized and deserialized.
     private String password;
 
     @Indexed(unique = true)
