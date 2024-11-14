@@ -52,7 +52,7 @@ public class UserService {
 
     public String userLogin(UserDto userDto) {
         try {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(userDto.getUsername());
+            UserDetails userDetails = userDetailsService.loadUserByUsername(userDto.getUserName());
             String jwtToken = jwtUtil.generateTokens(userDetails.getUsername());
             log.info("get jwtToken successful");
             return jwtToken;
@@ -77,5 +77,19 @@ public class UserService {
 
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    public void updateUser(String currentUserName, UserDto userDto) {
+        User currentUser = findUserByUserName(currentUserName);
+        if (userDto.getUserName() != null && !userDto.getUserName().isEmpty()) {
+            currentUser.setUserName(userDto.getUserName());
+        }
+        if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
+            currentUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        }
+        if (userDto.getEmailId() != null && !userDto.getEmailId().isEmpty()) {
+            currentUser.setMailId(userDto.getEmailId());
+        }
+        userRepository.save(currentUser);
     }
 }
