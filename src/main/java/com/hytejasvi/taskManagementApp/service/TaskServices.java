@@ -8,6 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionException;
+import org.springframework.transaction.TransactionSystemException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,5 +103,18 @@ public class TaskServices {
                     .orElse(null);
         }
         return null;
+    }
+
+    public void deleteTask(String userName, ObjectId taskId) {
+        User user = userRepository.findByUserName(userName);
+        try {
+            user.getTasks().removeIf(s -> s.getId().equals(taskId));
+            userRepository.save(user);
+            taskEntryRepository.deleteById(taskId);
+        } catch (NullPointerException e) {
+            throw new NullPointerException("User not found");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
