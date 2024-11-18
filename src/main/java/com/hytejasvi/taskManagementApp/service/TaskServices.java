@@ -8,10 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionException;
-import org.springframework.transaction.TransactionSystemException;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +22,7 @@ public class TaskServices {
     private UserRepository userRepository;
 
     @Autowired
-    private UserService userService;
+    private UserLookupService userLookupService;
 
 
     public void createTask(String userName, Task task) {
@@ -44,12 +40,12 @@ public class TaskServices {
         }*/
 
         Task taskEntry = taskEntryRepository.save(task);
-        User user = userService.findUserByUserName(userName);
+        User user = userLookupService.findUserByUserName(userName);
         if (task.getCategory() == null) {
             task.setCategory("Personal");
         }
         user.getTasks().add(taskEntry);
-        userService.saveUser(user);
+        userRepository.save(user);
         }
 
     public Task updateTask(Task task) {
@@ -58,7 +54,7 @@ public class TaskServices {
     }
 
     public List<Task> fetchAllTasksForUser(String userName) {
-        User user = userRepository.findByUserName(userName);
+        User user = userLookupService.findUserByUserName(userName);
         List<Task> tasks = new ArrayList<>();
         if (user != null) {
             tasks = user.getTasks();
@@ -95,7 +91,7 @@ public class TaskServices {
     }
 
     private Task findTaskForUser(String userName, ObjectId taskId) {
-        User user = userRepository.findByUserName(userName);
+        User user = userLookupService.findUserByUserName(userName);
         if (user != null) {
             return user.getTasks().stream().filter
                     (s -> s.getId().equals(taskId))
@@ -106,7 +102,7 @@ public class TaskServices {
     }
 
     public void deleteTask(String userName, ObjectId taskId) {
-        User user = userRepository.findByUserName(userName);
+        User user = userLookupService.findUserByUserName(userName);
         try {
             user.getTasks().removeIf(s -> s.getId().equals(taskId));
             userRepository.save(user);
@@ -115,6 +111,16 @@ public class TaskServices {
             throw new NullPointerException("User not found");
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void deleteTasks(User user) {
+        List<Task> tasks = user.getTasks();
+        if (tasks != null && !tasks.isEmpty()) { // Check if tasks is not null before accessing
+            List<ObjectId> taskIds = tasks.stream()
+                    .map(Task::getId)
+                    .toList(); // Efficiently map to task IDs
+            taskEntryRepository.deleteAllById(taskIds); // Delete all tasks in batch
         }
     }
 }
