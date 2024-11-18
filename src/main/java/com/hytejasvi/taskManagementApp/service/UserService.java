@@ -1,15 +1,19 @@
 package com.hytejasvi.taskManagementApp.service;
 
 import com.hytejasvi.taskManagementApp.dto.UserDto;
+import com.hytejasvi.taskManagementApp.entity.Task;
 import com.hytejasvi.taskManagementApp.entity.User;
 import com.hytejasvi.taskManagementApp.repository.UserRepository;
 import com.hytejasvi.taskManagementApp.utils.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionSystemException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +31,12 @@ public class UserService {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private TaskServices taskServices;
+
+    @Autowired
+    private UserLookupService userLookupService;
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -62,7 +72,7 @@ public class UserService {
     }
 
     public User findUserByUserName(String userName) {
-        return userRepository.findByUserName(userName);
+        return userLookupService.findUserByUserName(userName);
     }
 
     public void saveUser(User user) {
@@ -80,7 +90,7 @@ public class UserService {
     }
 
     public void updateUser(String currentUserName, UserDto userDto) {
-        User currentUser = findUserByUserName(currentUserName);
+        User currentUser = userLookupService.findUserByUserName(currentUserName);
         if (userDto.getUserName() != null && !userDto.getUserName().isEmpty()) {
             currentUser.setUserName(userDto.getUserName());
         }
@@ -91,5 +101,18 @@ public class UserService {
             currentUser.setMailId(userDto.getEmailId());
         }
         userRepository.save(currentUser);
+    }
+
+    @Transactional
+    public void deleteUserAccount(String userName) {
+        User user = userLookupService.findUserByUserName(userName);
+
+        // Delete tasks associated with the user
+        taskServices.deleteTasks(user);
+        log.info("user tasks deleted successfully");
+
+        // Delete the user itself
+        userRepository.delete(user);
+        log.info("user removed successfully");
     }
 }

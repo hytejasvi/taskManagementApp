@@ -19,10 +19,16 @@ public class UserController {
     private UserService userService;
 
     @PutMapping()
-    public ResponseEntity<?> updateUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<HttpStatus> updateUser(@RequestBody UserDto userDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         userService.updateUser(userName, userDto);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping("/delete-account")
+    public ResponseEntity<HttpStatus> deleteUserAccount() {
+        userService.deleteUserAccount(SecurityContextHolder.getContext().getAuthentication().getName());
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
