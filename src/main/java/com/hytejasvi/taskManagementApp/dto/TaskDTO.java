@@ -1,5 +1,6 @@
 package com.hytejasvi.taskManagementApp.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.hytejasvi.taskManagementApp.entity.Task;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +14,10 @@ public class TaskDTO {
     private String title;
     private String description;
     private Boolean isCompleted;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy : HH-mm")
     private Date deadline;
+
     private String category;
 
     public TaskDTO(Task task) {
