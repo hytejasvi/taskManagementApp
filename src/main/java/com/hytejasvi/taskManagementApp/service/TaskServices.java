@@ -8,7 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.DateTimeException;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -28,16 +32,17 @@ public class TaskServices {
     public void createTask(String userName, Task task) {
 
         //we will be adding the validations later
-        /*Date deadline = task.getDeadline();
+        Date deadline = task.getDeadline();
+        log.info("current deadline is: {}", deadline);
         Date currentDate = Date.from(Instant.now());
         try {
             if (deadline.before(currentDate)) {
                 log.error("entered date / time is in past. Enter correct date / time");
-                throw new Exception("");
+                throw new DateTimeException("entered date / time is in past. Enter correct date / time");
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
-        }*/
+            throw new DateTimeException("entered date / time is in past. Enter correct date / time");
+        }
 
         Task taskEntry = taskEntryRepository.save(task);
         User user = userLookupService.findUserByUserName(userName);
