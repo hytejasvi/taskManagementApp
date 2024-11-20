@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.DateTimeException;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,8 +35,9 @@ public class TaskServices {
 
         //we will be adding the validations later
         Date deadline = task.getDeadline();
-        log.info("current deadline is: {}", deadline);
+
         Date currentDate = Date.from(Instant.now());
+        log.info("current currentDate is: {}", currentDate);
         try {
             if (deadline.before(currentDate)) {
                 log.error("entered date / time is in past. Enter correct date / time");
@@ -43,7 +46,8 @@ public class TaskServices {
         } catch (Exception e) {
             throw new DateTimeException("entered date / time is in past. Enter correct date / time");
         }
-
+        task.setDeadline(convertToUTC(deadline));
+        log.info("deadline in UTC is: "+task.getDeadline());
         Task taskEntry = taskEntryRepository.save(task);
         User user = userLookupService.findUserByUserName(userName);
         if (task.getCategory() == null) {
@@ -127,5 +131,9 @@ public class TaskServices {
                     .toList(); // Efficiently map to task IDs
             taskEntryRepository.deleteAllById(taskIds); // Delete all tasks in batch
         }
+    }
+
+    public Date convertToUTC(Date date) {
+        return Date.from(date.toInstant());
     }
 }
